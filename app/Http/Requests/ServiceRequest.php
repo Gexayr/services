@@ -24,7 +24,7 @@ class ServiceRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'    => 'required|unique:services|min:3|max:200',
+            'name'    => 'required|min:2|max:200',
             'description'    => 'required|min:3|max:200',
         ];
     }

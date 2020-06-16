@@ -37227,6 +37227,8 @@ module.exports = function(module) {
 
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
+__webpack_require__(/*! ./main.js */ "./resources/js/main.js");
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -37271,6 +37273,52 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/main.js":
+/*!******************************!*\
+  !*** ./resources/js/main.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+$(document).ready(function () {
+  $('#addService, #editService').on('hidden.bs.modal', function () {
+    $(this).find('input:not([type="hidden"])').val('');
+    $(this).find('textarea').val('');
+  });
+  $('.edit-service').click(function (e) {
+    var self = $(e.currentTarget);
+    var id = self.data("id");
+    $.ajax({
+      type: "GET",
+      url: "/services/".concat(id, "/edit"),
+      data: {
+        _tocken: $('input[name="_token"]').val(),
+        id: id
+      },
+      dataType: 'json',
+      success: function success(response) {
+        $('#editService').find('input[name="name"]').val(response.name);
+        $('#editService').find('textarea[name="description"]').val(response.description);
+        $('#editService').find('form').prop("action", "/services/".concat(id));
+        console.log(response.name);
+      }
+    });
+  });
+  $('input[type="checkbox"]').click(function () {
+    var form = $('#setup-form');
+    var formData = form.serializeArray();
+    $.ajax({
+      type: "POST",
+      url: '/relations',
+      data: formData,
+      dataType: 'json',
+      success: function success(response) {}
+    });
+  });
+});
 
 /***/ }),
 

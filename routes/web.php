@@ -18,3 +18,5 @@ Route::get('/', function () {
 });
 
 Route::resource('services', 'ServicesController');
+Route::post('relations', 'ServicesController@relations');
+

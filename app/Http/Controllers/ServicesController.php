@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceRequest;
+use App\Relations;
 use App\Services;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ServicesController extends Controller
 {
@@ -15,7 +17,10 @@ class ServicesController extends Controller
      */
     public function index()
     {
-        return view('index');
+        $services = $innerServices = Services::get();
+
+        return view('index',
+            compact(['services', 'innerServices']));
     }
 
     /**
@@ -37,11 +42,10 @@ class ServicesController extends Controller
     public function store(ServiceRequest $request)
     {
         $data = $request->validated();
-        $item = (new Services())->create($data);
+        $result = (new Services())->create($data);
 
-        if ($item) {
-            return redirect()
-                ->route('services.index')
+        if ($result) {
+            return back()
                 ->with(['success' => 'Success']);
         } else {
             return back()
@@ -67,9 +71,9 @@ class ServicesController extends Controller
      * @param  \App\Services  $services
      * @return \Illuminate\Http\Response
      */
-    public function edit(Services $services)
+    public function edit(Services $service)
     {
-        //
+        return response()->json($service);
     }
 
     /**
@@ -79,9 +83,21 @@ class ServicesController extends Controller
      * @param  \App\Services  $services
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Services $services)
+    public function update(ServiceRequest $request, Services $service)
     {
-        //
+        $data = $request->validated();
+        $service->name = $data["name"];
+        $service->description = $data["description"];
+
+        $result = $service->save();
+        if ($result) {
+            return back()
+                ->with(['success' => 'Success']);
+        } else {
+            return back()
+                ->withErrors(['msg' => 'Saving Error'])
+                ->withInput();
+        }
     }
 
     /**
@@ -90,8 +106,48 @@ class ServicesController extends Controller
      * @param  \App\Services  $services
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Services $services)
+    public function destroy(Services $service)
     {
-        //
+
+
+        Relations::whereServiceId($service->id)->delete();
+        Relations::whereActiveService($service->id)->delete();
+
+        $result = $service->delete();
+        if ($result) {
+            return back()
+                ->with(['success' => 'Success']);
+        } else {
+            return back()
+                ->withErrors(['msg' => 'Saving Error'])
+                ->withInput();
+        }
+    }
+
+    public function relations(Request $request)
+    {
+        $data = $request->input('service');
+
+        DB::transaction(function () use ($data) {
+            if (empty($data)) {
+                Relations::truncate();
+            } else {
+                foreach ($data as $key => $value) {
+                    $relations = Relations::whereServiceId($key)->get();
+
+                    if (!$relations->isEmpty()) {
+                        Relations::whereServiceId($key)->delete();
+                    }
+                    foreach ($value as $active_service => $v) {
+                        $newRelation = new Relations();
+                        $newRelation->service_id = $key;
+                        $newRelation->active_service = $active_service;
+                        $newRelation->save();
+                    }
+                }
+            }
+        });
+
+        return response()->json(['status' => 'OK']);
     }
 }
