@@ -25,7 +25,7 @@ $(document).ready(function () {
         });
     });
 
-    $('input[type="checkbox"]').click(()=>{
+    $('.relations-checkbox[type="checkbox"]').click(()=>{
         let form = $('#setup-form');
         let formData = form.serializeArray();
         $.ajax({
@@ -35,6 +35,35 @@ $(document).ready(function () {
             dataType: 'json',
             success: function(response) {
 
+            }
+        });
+    });
+
+    $('.checkbox-input[type="checkbox"]').click((e)=> {
+        let self = $(e.currentTarget);
+        let id = self.data('id');
+
+        let checked = (self.is(':checked'));
+
+        $.ajax({
+            type: "GET",
+            url: `/services/check`,
+            data: {
+                _tocken: $('input[name="_token"]').val(),
+                id: id,
+                checked: checked,
+            },
+            dataType: 'json',
+            success: function (response) {
+                if(checked){
+                    $('.checkbox-input').prop("disabled", true);
+                    $.each(response, function( index, value ) {
+                        $('.checkbox-input[data-id=' + value + ']').prop("disabled", false);
+                    });
+                } else {
+                    $('.checkbox-input').prop("disabled", false);
+                }
+                $('.checkbox-input[data-id=' + id + ']').prop("disabled", false);
             }
         });
     });

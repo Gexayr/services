@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use \App\Services;
 
 class CreateServicesTable extends Migration
 {
@@ -17,6 +18,7 @@ class CreateServicesTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
+            $table->enum('checked', [Services::UNCHECKED, Services::CHECKED])->default(Services::UNCHECKED);
             $table->timestamps();
         });
     }

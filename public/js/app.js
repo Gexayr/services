@@ -37303,11 +37303,10 @@ $(document).ready(function () {
         $('#editService').find('input[name="name"]').val(response.name);
         $('#editService').find('textarea[name="description"]').val(response.description);
         $('#editService').find('form').prop("action", "/services/".concat(id));
-        console.log(response.name);
       }
     });
   });
-  $('input[type="checkbox"]').click(function () {
+  $('.relations-checkbox[type="checkbox"]').click(function () {
     var form = $('#setup-form');
     var formData = form.serializeArray();
     $.ajax({
@@ -37316,6 +37315,33 @@ $(document).ready(function () {
       data: formData,
       dataType: 'json',
       success: function success(response) {}
+    });
+  });
+  $('.checkbox-input[type="checkbox"]').click(function (e) {
+    var self = $(e.currentTarget);
+    var id = self.data('id');
+    var checked = self.is(':checked');
+    $.ajax({
+      type: "GET",
+      url: "/services/check",
+      data: {
+        _tocken: $('input[name="_token"]').val(),
+        id: id,
+        checked: checked
+      },
+      dataType: 'json',
+      success: function success(response) {
+        if (checked) {
+          $('.checkbox-input').prop("disabled", true);
+          $.each(response, function (index, value) {
+            $('.checkbox-input[data-id=' + value + ']').prop("disabled", false);
+          });
+        } else {
+          $('.checkbox-input').prop("disabled", false);
+        }
+
+        $('.checkbox-input[data-id=' + id + ']').prop("disabled", false);
+      }
     });
   });
 });

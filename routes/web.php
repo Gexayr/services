@@ -13,10 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('home');
-});
+Route::get('/', 'ServicesController@home');
 
+Route::get('/services/check', 'ServicesController@check');
 Route::resource('services', 'ServicesController');
 Route::post('relations', 'ServicesController@relations');
 

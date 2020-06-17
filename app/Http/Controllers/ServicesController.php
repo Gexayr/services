@@ -150,4 +150,41 @@ class ServicesController extends Controller
 
         return response()->json(['status' => 'OK']);
     }
+
+    public function home()
+    {
+        $services = Services::get();
+
+        $checkedServices = Services::whereChecked(Services::CHECKED)->get();
+        if(!$checkedServices->isEmpty()) {
+            $activeServices = [];
+            foreach($checkedServices as $checkedService) {
+                foreach ($checkedService->relations as $relation) {
+                    $activeServices[] = $relation->active_service;
+                }
+            }
+        } else {
+            $activeServices = Services::pluck('id')->toArray();
+        }
+
+
+        return view('home',
+            compact(['services', 'activeServices']));
+    }
+
+    public function check(Request $request)
+    {
+        $data = $request->all();
+        $service = Services::find($data['id']);
+        if ($data["checked"] == 'true') {
+            $service->checked = Services::CHECKED;
+        } else {
+            $service->checked = Services::UNCHECKED;
+        }
+        $service->save();
+        $relations = $service->relations;
+
+        return response()->json($relations->pluck('active_service'));
+
+    }
 }

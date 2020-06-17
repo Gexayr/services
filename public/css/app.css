@@ -79,6 +79,23 @@
     bottom: 5px;
     left: 5px;
 }
+
+.service-checkbox{
+    position: absolute;
+    right: 0;
+    top: 8px;
+}
+
+.empty-services{
+    margin: 0 auto;
+}
+.service-block{
+    margin-bottom: 20px;
+}
+
+.service-block img {
+    margin-right: 15px;
+}
 @charset "UTF-8";
 
 /*!
