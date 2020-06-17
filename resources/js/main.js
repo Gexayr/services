@@ -57,13 +57,17 @@ $(document).ready(function () {
             success: function (response) {
                 if(checked){
                     $('.checkbox-input').prop("disabled", true);
+                    $('.service-block .inactive').addClass("show");
                     $.each(response, function( index, value ) {
                         $('.checkbox-input[data-id=' + value + ']').prop("disabled", false);
+                        $('.checkbox-input[data-id=' + value + ']').closest('.service-block').find('.inactive').removeClass("show");
                     });
                 } else {
                     $('.checkbox-input').prop("disabled", false);
+                    $('.service-block .inactive').removeClass("show");
                 }
                 $('.checkbox-input[data-id=' + id + ']').prop("disabled", false);
+                $('.checkbox-input[data-id=' + id + ']').closest('.service-block').find('.inactive').removeClass("show");
             }
         });
     });

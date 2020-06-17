@@ -96,6 +96,19 @@
 .service-block img {
     margin-right: 15px;
 }
+
+.inactive {
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    display: none;
+    position: absolute;
+    background: #eeeeee9e;
+}
+
+.show{
+    display: block;
+}
 @charset "UTF-8";
 
 /*!

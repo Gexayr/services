@@ -12,6 +12,7 @@
 
                     <div class="col-md-4 service-block">
                         <div class="card">
+                            <div class="inactive {{ !in_array($service->id, $activeServices) && !$service->checked ? 'show' : ''}}"></div>
                             <div class="card-body">
                                 <h2><img src="/img/service.png" width="60" alt="service"/>{{$service->name}}</h2>
                                 <label class="checkable-box service-checkbox">
