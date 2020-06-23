@@ -12,13 +12,13 @@
 
                     <div class="col-md-4 service-block">
                         <div class="card">
-                            <div class="inactive {{ !in_array($service->id, $activeServices) && !$service->checked ? 'show' : ''}}"></div>
+                            <div class="inactive {{ in_array($service->id, $inactiveServices) && !$service->checked ? 'show' : ''}}"></div>
                             <div class="card-body">
                                 <h2><img src="/img/service.png" width="60" alt="service"/>{{$service->name}}</h2>
                                 <label class="checkable-box service-checkbox">
                                     <input class="checkbox-input" type="checkbox" name="service"
                                            data-id="{{$service->id}}" {{$service->checked ? 'checked' : ''}}
-                                        {{ !in_array($service->id, $activeServices) && !$service->checked ? 'disabled' : ''}}>
+                                        {{ in_array($service->id, $inactiveServices) && !$service->checked ? 'disabled' : ''}}>
                                     <span class="checkmark"></span>
                                 </label>
                                 <p>{{$service->description}}</p>

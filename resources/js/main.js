@@ -25,7 +25,21 @@ $(document).ready(function () {
         });
     });
 
-    $('.relations-checkbox[type="checkbox"]').click(()=>{
+    $('.relations-checkbox[type="checkbox"]').click((e)=>{
+        let self = $(e.currentTarget);
+        let row = self.data('row');
+        let col = self.data('col');
+
+        let checked = (self.is(':checked'));
+        if(checked) {
+            var action = 'added';
+            $(`.relations-checkbox[data-col="${row}"][data-row="${col}"]`).prop('checked', true);
+        } else {
+            var action = 'removed';
+            $(`.relations-checkbox[data-col="${row}"][data-row="${col}"]`).prop('checked', false);
+        }
+
+
         let form = $('#setup-form');
         let formData = form.serializeArray();
         $.ajax({
@@ -34,7 +48,22 @@ $(document).ready(function () {
             data: formData,
             dataType: 'json',
             success: function(response) {
-
+                if (response.status === "OK") {
+                    $("#setup-form").prepend(
+                        '<div class="alert alert-success" role="alert">\n' +
+                        '    Service ' + action +' successfully!\n' +
+                        '</div>'
+                    );
+                } else {
+                    $("#setup-form").prepend(
+                        '<div class="alert alert-danger" role="alert">\n' +
+                        '    Something went wrong!\n' +
+                        '</div>'
+                    );
+                }
+                setTimeout(() => {
+                    $('.alert').remove();
+                }, 2000);
             }
         });
     });
@@ -42,32 +71,30 @@ $(document).ready(function () {
     $('.checkbox-input[type="checkbox"]').click((e)=> {
         let self = $(e.currentTarget);
         let id = self.data('id');
-
         let checked = (self.is(':checked'));
+
+        let formData = [];
+        $('.justify-content input[type="checkbox"]:checked').each(function (index, item) {
+            formData.push({name: 'items[]', value: $(item).data('id')});
+        });
+
+        formData.push({name: 'id', value: id});
+        formData.push({name: 'checked', value: checked});
 
         $.ajax({
             type: "GET",
             url: `/services/check`,
-            data: {
-                _tocken: $('input[name="_token"]').val(),
-                id: id,
-                checked: checked,
-            },
+            data: formData,
             dataType: 'json',
             success: function (response) {
-                if(checked){
-                    $('.checkbox-input').prop("disabled", true);
-                    $('.service-block .inactive').addClass("show");
-                    $.each(response, function( index, value ) {
-                        $('.checkbox-input[data-id=' + value + ']').prop("disabled", false);
-                        $('.checkbox-input[data-id=' + value + ']').closest('.service-block').find('.inactive').removeClass("show");
-                    });
-                } else {
-                    $('.checkbox-input').prop("disabled", false);
-                    $('.service-block .inactive').removeClass("show");
-                }
-                $('.checkbox-input[data-id=' + id + ']').prop("disabled", false);
-                $('.checkbox-input[data-id=' + id + ']').closest('.service-block').find('.inactive').removeClass("show");
+                $('.checkbox-input').prop("disabled", false);
+                $('.service-block .inactive').removeClass("show");
+                $.each(response, ( index, item ) => {
+                    if(!$('.checkbox-input[data-id=' + item + ']').is(':checked')) {
+                        $('.checkbox-input[data-id=' + item + ']').prop("disabled", true);
+                        $('.checkbox-input[data-id=' + item + ']').closest('.service-block').find('.inactive').addClass("show");
+                    }
+                });
             }
         });
     });

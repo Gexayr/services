@@ -109,6 +109,12 @@
 .show{
     display: block;
 }
+
+#setup-form .alert{
+    position: absolute;
+    left: 40%;
+    top: 6px;
+}
 @charset "UTF-8";
 
 /*!

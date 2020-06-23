@@ -29,8 +29,8 @@
                                     @foreach($innerServices as $innerService)
                                     <td>
                                         <label class="checkable-box">
-                                            <input class="relations-checkbox" type="checkbox" name="service[{{$service->id}}][{{$innerService->id}}]"
-                                                {{$service->id == $innerService->id ? 'disabled' : ''}}
+                                            <input class="relations-checkbox" type="checkbox" data-row="{{$service->id}}"  data-col="{{$innerService->id}}" name="service[{{$service->id}}][{{$innerService->id}}]"
+                                                {{$service->id == $innerService->id ? 'disabled checked' : ''}}
                                             {{$service->hasRelations($service->id, $innerService->id) ? 'checked' : ''}}>
                                             <span class="checkmark"></span>
                                         </label>

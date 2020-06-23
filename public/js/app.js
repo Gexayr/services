@@ -37306,7 +37306,20 @@ $(document).ready(function () {
       }
     });
   });
-  $('.relations-checkbox[type="checkbox"]').click(function () {
+  $('.relations-checkbox[type="checkbox"]').click(function (e) {
+    var self = $(e.currentTarget);
+    var row = self.data('row');
+    var col = self.data('col');
+    var checked = self.is(':checked');
+
+    if (checked) {
+      var action = 'added';
+      $(".relations-checkbox[data-col=\"".concat(row, "\"][data-row=\"").concat(col, "\"]")).prop('checked', true);
+    } else {
+      var action = 'removed';
+      $(".relations-checkbox[data-col=\"".concat(row, "\"][data-row=\"").concat(col, "\"]")).prop('checked', false);
+    }
+
     var form = $('#setup-form');
     var formData = form.serializeArray();
     $.ajax({
@@ -37314,37 +37327,52 @@ $(document).ready(function () {
       url: '/relations',
       data: formData,
       dataType: 'json',
-      success: function success(response) {}
+      success: function success(response) {
+        if (response.status === "OK") {
+          $("#setup-form").prepend('<div class="alert alert-success" role="alert">\n' + '    Service ' + action + ' successfully!\n' + '</div>');
+        } else {
+          $("#setup-form").prepend('<div class="alert alert-danger" role="alert">\n' + '    Something went wrong!\n' + '</div>');
+        }
+
+        setTimeout(function () {
+          $('.alert').remove();
+        }, 2000);
+      }
     });
   });
   $('.checkbox-input[type="checkbox"]').click(function (e) {
     var self = $(e.currentTarget);
     var id = self.data('id');
     var checked = self.is(':checked');
+    var formData = [];
+    $('.justify-content input[type="checkbox"]:checked').each(function (index, item) {
+      formData.push({
+        name: 'items[]',
+        value: $(item).data('id')
+      });
+    });
+    formData.push({
+      name: 'id',
+      value: id
+    });
+    formData.push({
+      name: 'checked',
+      value: checked
+    });
     $.ajax({
       type: "GET",
       url: "/services/check",
-      data: {
-        _tocken: $('input[name="_token"]').val(),
-        id: id,
-        checked: checked
-      },
+      data: formData,
       dataType: 'json',
       success: function success(response) {
-        if (checked) {
-          $('.checkbox-input').prop("disabled", true);
-          $('.service-block .inactive').addClass("show");
-          $.each(response, function (index, value) {
-            $('.checkbox-input[data-id=' + value + ']').prop("disabled", false);
-            $('.checkbox-input[data-id=' + value + ']').closest('.service-block').find('.inactive').removeClass("show");
-          });
-        } else {
-          $('.checkbox-input').prop("disabled", false);
-          $('.service-block .inactive').removeClass("show");
-        }
-
-        $('.checkbox-input[data-id=' + id + ']').prop("disabled", false);
-        $('.checkbox-input[data-id=' + id + ']').closest('.service-block').find('.inactive').removeClass("show");
+        $('.checkbox-input').prop("disabled", false);
+        $('.service-block .inactive').removeClass("show");
+        $.each(response, function (index, item) {
+          if (!$('.checkbox-input[data-id=' + item + ']').is(':checked')) {
+            $('.checkbox-input[data-id=' + item + ']').prop("disabled", true);
+            $('.checkbox-input[data-id=' + item + ']').closest('.service-block').find('.inactive').addClass("show");
+          }
+        });
       }
     });
   });

@@ -156,25 +156,21 @@ class ServicesController extends Controller
         $services = Services::get();
 
         $checkedServices = Services::whereChecked(Services::CHECKED)->get();
-        if(!$checkedServices->isEmpty()) {
-            $activeServices = [];
-            foreach($checkedServices as $checkedService) {
-                foreach ($checkedService->relations as $relation) {
-                    $activeServices[] = $relation->active_service;
-                }
-            }
-        } else {
-            $activeServices = Services::pluck('id')->toArray();
-        }
-
+        $inactiveServices = $this->getInactiveServices($checkedServices);
 
         return view('home',
-            compact(['services', 'activeServices']));
+            compact(['services', 'inactiveServices']));
     }
 
     public function check(Request $request)
     {
         $data = $request->all();
+        if (empty($data['items'])) {
+            $data['items'] = [];
+        }
+        $checkedServices = Services::whereIn('id', $data['items'])->get();
+        $inactiveServices = $this->getInactiveServices($checkedServices);
+
         $service = Services::find($data['id']);
         if ($data["checked"] == 'true') {
             $service->checked = Services::CHECKED;
@@ -182,9 +178,26 @@ class ServicesController extends Controller
             $service->checked = Services::UNCHECKED;
         }
         $service->save();
-        $relations = $service->relations;
 
-        return response()->json($relations->pluck('active_service'));
+        return response()->json($inactiveServices);
 
+    }
+
+    private function getInactiveServices($checkedServices)
+    {
+        $inactive = Services::pluck('id')->toArray();
+        $inactiveServices = [];
+
+        if(!$checkedServices->isEmpty()) {
+            foreach($checkedServices as $checkedService) {
+                $activeServices = [];
+                foreach ($checkedService->relations as $relation) {
+                    $activeServices[] = $relation->active_service;
+                }
+                $inactiveServices = array_unique(array_merge($inactiveServices, array_diff($inactive, $activeServices)));
+            }
+        }
+
+        return $inactiveServices;
     }
 }
